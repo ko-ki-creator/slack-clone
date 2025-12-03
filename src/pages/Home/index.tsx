@@ -7,12 +7,15 @@ import { Navigate, useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { Workspace } from '../../modules/workspaces/workspace.entity';
 import { workspaceRepository } from '../../modules/workspaces/workspace.repository';
+import { channelRepository } from '../../modules/channels/channel.repository';
+import type { Channel } from '../../modules/channels/channel.entity';
 
 function Home() {
   const { currentUser } = useCurrentUserStore();
   const [workspaces, setWorkspaces] = useState<Workspace[]>([]);
+  const [channels, setChannels] = useState<Channel[]>([])
   const params = useParams();
-  const { workspaceId } = params;
+  const { workspaceId, channelId } = params;
   const selectedWorkspace = workspaces.find(
     (workspace) => workspace.id == workspaceId
   );
@@ -20,6 +23,10 @@ function Home() {
   useEffect(() => {
     fetchWorkspaces();
   }, []);
+
+  useEffect(() => {
+    fetchChannels();
+  }, [workspaceId]);
 
   const fetchWorkspaces = async () => {
     try {
@@ -29,6 +36,15 @@ function Home() {
       console.error('ワークスペースの取得に失敗しました', error);
     }
   };
+
+  const fetchChannels = async () => {
+    try {
+      const channels = await channelRepository.find(workspaceId!);
+      setChannels(channels);
+    } catch (error) {
+      console.error('チャンネルの取得に失敗しました', error);
+    }
+  }
 
   if (currentUser == null) return <Navigate to="/signin" />;
 
@@ -44,6 +60,8 @@ function Home() {
         <>
           <Sidebar
             selectedWorkspace={selectedWorkspace}
+            channels={channels}
+            selectedChannelId={channelId!}
           />
           <MainContent />
         </>
