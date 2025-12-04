@@ -19,6 +19,7 @@ function Home() {
   const selectedWorkspace = workspaces.find(
     (workspace) => workspace.id == workspaceId
   );
+  const selectedChannel = channels.find((channel) => channel.id == channelId);
 
   useEffect(() => {
     fetchWorkspaces();
@@ -56,14 +57,20 @@ function Home() {
         setWorkspaces={setWorkspaces}
         selectedWorkspaceId={workspaceId!}
       />
-      {selectedWorkspace != null ? (
+      {selectedWorkspace != null && selectedChannel != null ? (
         <>
           <Sidebar
             selectedWorkspace={selectedWorkspace}
             channels={channels}
             selectedChannelId={channelId!}
+            setChannels={setChannels}
           />
-          <MainContent />
+          <MainContent
+            selectedChannel={selectedChannel}
+            channels={channels}
+            setChannels={setChannels}
+            selectedWorkspaceId={workspaceId!}
+          />
         </>
       ) : (
         <div className='sidebar' />

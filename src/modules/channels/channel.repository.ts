@@ -11,4 +11,10 @@ export const channelRepository = {
         const result = await api.post('/channels', { workspaceId, name });
         return new Channel(result.data);
     },
+
+    // チャンネル削除
+    async delete(channelId: string): Promise<boolean> {
+        await api.delete(`/channels/${channelId}`);
+        return true;
+    },
 };

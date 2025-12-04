@@ -4,6 +4,7 @@ import CreateWorkspaceModal from './CreateWorkspaceModal';
 import ProfileModal from './ProfileModal';
 import { workspaceRepository } from '../../../modules/workspaces/workspace.repository';
 import type { Workspace } from '../../../modules/workspaces/workspace.entity';
+import { useCurrentUserStore } from '../../../modules/auth/current-user.state';
 
 interface Props {
   workspaces: Workspace[];
@@ -13,9 +14,14 @@ interface Props {
 
 function WorkspaceSelector(props: Props) {
   const { workspaces, setWorkspaces, selectedWorkspaceId } = props;
-  const { showCreateWorkspaceModal, setShowCreateWorkspaceModal } = useUiStore();
-
+  const {
+    showCreateWorkspaceModal,
+    setShowCreateWorkspaceModal,
+    showProfileModal,
+    setShowProfileModal
+  } = useUiStore();
   const navigate = useNavigate();
+  const { currentUser, setCurrentUser } = useCurrentUserStore();
 
   const createWorkspace = async (name: string) => {
     try {
@@ -26,6 +32,11 @@ function WorkspaceSelector(props: Props) {
     } catch (error) {
       console.error('ワークスペースの作成に失敗しました', error);
     }
+  };
+
+  const logout = () => {
+    localStorage.removeItem('token');
+    setCurrentUser(undefined);
   };
 
 
@@ -51,16 +62,21 @@ function WorkspaceSelector(props: Props) {
         >+</div>
       </div>
       <div className="user-profile">
-        <div className={`avatar-img `}>
+        <div
+          className={`avatar-img `}
+          onClick={() => setShowProfileModal(true)}
+        >
           <img
-            src={
-              'https://cdn.pixabay.com/photo/2016/08/08/09/17/avatar-1577909_960_720.png'
-            }
+            src={currentUser!.iconUrl}
             alt="Posted image"
             className="message-image"
           />
         </div>
-        <div className="logout-button" title="ログアウト">
+        <div
+          className="logout-button"
+          title="ログアウト"
+          onClick={logout}
+        >
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="16"
@@ -79,7 +95,7 @@ function WorkspaceSelector(props: Props) {
         </div>
       </div>
       {showCreateWorkspaceModal && <CreateWorkspaceModal onSubmit={createWorkspace} allowCancel={true} />}
-      {/* <ProfileModal /> */}
+      {showProfileModal && <ProfileModal />}
     </div>
   );
 }

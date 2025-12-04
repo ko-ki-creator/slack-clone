@@ -10,11 +10,17 @@ interface Props {
   selectedWorkspace: Workspace;
   selectedChannelId: string;
   channels: Channel[];
+  setChannels: (channels: Channel[]) => void;
 }
 
 function Sidebar(props: Props) {
-  const { selectedWorkspace, selectedChannelId, channels } = props;
-  const { showCreateChannelModal, setShowCreateChannelModal } = useUiStore();
+  const { selectedWorkspace, selectedChannelId, channels, setChannels } = props;
+  const {
+    showCreateChannelModal,
+    setShowCreateChannelModal,
+    showUserSearchModal,
+    setShowUserSearchModal,
+  } = useUiStore();
   const navigate = useNavigate();
 
   const createChannel = async (name: string) => {
@@ -23,7 +29,7 @@ function Sidebar(props: Props) {
         selectedWorkspace.id,
         name
       );
-      console.log('New channel created:', newChannel);
+      setChannels([...channels, newChannel]);
       setShowCreateChannelModal(false);
       navigate(`/${selectedWorkspace.id}/${newChannel.id}`);
     } catch (error) {
@@ -62,14 +68,19 @@ function Sidebar(props: Props) {
           </li>
         </ul>
 
-        <div className="section-header channels-header">
+        <div
+          className="section-header channels-header"
+          onClick={() => setShowUserSearchModal(true)}
+        >
           <span className="channel-icon add">+</span> Invite People
         </div>
       </div>
       {showCreateChannelModal && (
         <CreateChannelModal onSubmit={createChannel} />
       )}
-      {/* <UserSearchModal /> */}
+      {showUserSearchModal && (
+        <UserSearchModal workspaceId={selectedWorkspace.id} />
+      )}
     </div>
   );
 }
