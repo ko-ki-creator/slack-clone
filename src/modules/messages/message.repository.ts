@@ -31,5 +31,11 @@ export const messageRepository = {
             { file }
         );
         return new Message(result.data);
-    }
+    },
+
+    // メッセージ削除
+    async delete(messageId: string): Promise<boolean> {
+        await api.delete(`/messages/${messageId}`);
+        return true;
+    },
 };

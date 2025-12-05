@@ -11,6 +11,7 @@ import { channelRepository } from '../../modules/channels/channel.repository';
 import { Channel } from '../../modules/channels/channel.entity';
 import { Message } from '../../modules/messages/message.entity';
 import { messageRepository } from '../../modules/messages/message.repository';
+import { subscribe, unsubscribe } from '../../lib/api/socket';
 
 function Home() {
   const { currentUser } = useCurrentUserStore();
@@ -30,6 +31,10 @@ function Home() {
 
   useEffect(() => {
     fetchChannels();
+    subscribe(workspaceId!, handleNewMessage, handleDeleteMessage);
+    return () => {
+      unsubscribe(workspaceId!);
+    }
   }, [workspaceId]);
 
   useEffect(() => {
@@ -43,6 +48,14 @@ function Home() {
     } catch (error) {
       console.error('ワークスペースの取得に失敗しました', error);
     }
+  };
+
+  const handleNewMessage = (message: Message) => {
+    setMessages((messages) => [message, ...messages]);
+  };
+
+  const handleDeleteMessage = (messageId: string) => {
+    setMessages((messages) => messages.filter((msg) => msg.id != messageId));
   };
 
   const fetchChannels = async () => {

@@ -92,6 +92,19 @@ function MainContent(props: Props) {
     }
   };
 
+  const deleteMessage = async (message: Message) => {
+    const confirmed = window.confirm(
+      'このメッセージを削除しますか？この操作は取り消せません。'
+    );
+    if (!confirmed) return;
+    try {
+      await messageRepository.delete(message.id);
+      setMessages(messages.filter((msg) => msg.id !== message.id));
+    } catch (error) {
+      console.error('メッセージの削除に失敗しました', error);
+    }
+  };
+
   return (
     <div className="main-content">
       <header className="channel-header">
@@ -138,19 +151,22 @@ function MainContent(props: Props) {
                     <div className="message-header">
                       <span className="username">{user.name}</span>
                       <span className="timestamp">{message.datetimeString}</span>
-                      <button
-                        className="message-delete-button"
-                        title="メッセージを削除"
-                      >
-                        <svg
-                          viewBox="0 0 24 24"
-                          width="16"
-                          height="16"
-                          fill="currentColor"
+                      {currentUser?.id == message.user.id && (
+                        <button
+                          className="message-delete-button"
+                          title="メッセージを削除"
+                          onClick={() => deleteMessage(message)}
                         >
-                          <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" />
-                        </svg>
-                      </button>
+                          <svg
+                            viewBox="0 0 24 24"
+                            width="16"
+                            height="16"
+                            fill="currentColor"
+                          >
+                            <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" />
+                          </svg>
+                        </button>
+                      )}
                     </div>
                     <div className="message-text">{message.content}</div>
                     {message.imageUrl != null && (
